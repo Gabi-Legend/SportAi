@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+.displayContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: "Poppins", sans-serif;
+  color: white;
+  text-align: center;
+}
+
+.appName {
+  font-size: 60px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  font-size: 18px;
+  color: #94a3b8;
+  margin-bottom: 40px;
+}
+
+.startConv {
+  display: flex;
+  gap: 10px;
+}
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  padding: 10px 15px;
+  border-radius: 12px;
+  width: 350px;
+}
+
+.icon {
+  color: #94a3b8;
+  margin-right: 8px;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  width: 100%;
+  font-size: 16px;
+}
+
+.sendBtn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.sendBtn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
