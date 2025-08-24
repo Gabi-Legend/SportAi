@@ -1,7 +1,8 @@
+"use client";
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import styles from "../styles/display.module.css";
+import styles from "./display.module.css";
 
 export default function Display() {
   const [input, setInput] = useState("");
@@ -9,10 +10,8 @@ export default function Display() {
 
   const startChat = () => {
     if (!input) return;
-    router.push({
-      pathname: "/chat",
-      query: { firstMessage: input },
-    });
+    localStorage.setItem("firstMessage", input);
+    router.push("/chat");
   };
 
   return (
