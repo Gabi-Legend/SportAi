@@ -3,21 +3,83 @@
   flex-direction: column;
   align-items: center;
   padding: 30px;
-  min-height: 100vh;
+  height: 91svh;
   color: white;
   font-family: "Poppins", sans-serif;
 }
 
 .chatBox {
   width: 400px;
-  max-height: 400px;
   padding: 15px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(6px);
   border-radius: 15px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
+  height: auto;
+  max-height: none;
+  overflow-y: visible;
+}
+
+.message {
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.user {
+  background: #22c55e;
+  align-self: flex-end;
+  color: white;
+}
+
+.bot {
+  background: #3b82f6;
+  align-self: flex-start;
+  color: white;
+}
+
+.startConv {
+  display: flex;
+  gap: 10px;
+  width: 400px;
+}
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  padding: 10px 15px;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  width: 100%;
+  font-size: 16px;
+}
+
+.sendBtn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.sendBtn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
 }
