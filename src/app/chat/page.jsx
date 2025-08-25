@@ -14,10 +14,51 @@ export default function Chat() {
     }
   }, []);
 
-  const sendMessage = () => {
-    if (!input) return;
-    setMessages([...messages, { from: "user", text: input }]);
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage = input.trim();
+
+    setMessages((prev) => [...prev, { from: "user", text: userMessage }]);
+
     setInput("");
+
+    setMessages((prev) => [...prev, { from: "bot", text: "Se încarcă..." }]);
+
+    try {
+      const res = await fetch("/api/deepseek", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = { from: "bot", text: data.reply };
+        return newMessages;
+      });
+    } catch (err) {
+      console.error("Error sending message:", err);
+
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = {
+          from: "bot",
+          text: "Ne pare rău, a apărut o eroare. Te rog încearcă din nou.",
+        };
+        return newMessages;
+      });
+    }
   };
 
   return (
