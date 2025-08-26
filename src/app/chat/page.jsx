@@ -281,6 +281,15 @@ export default function Chat() {
               msg.from === "user" ? styles.user : styles.bot
             } ${msg.isError ? styles.error : ""}`}
           >
+            {/* Avatar */}
+            <div
+              className={`${styles.messageAvatar} ${
+                msg.from === "user" ? styles.userAvatar : styles.botAvatar
+              }`}
+            >
+              {msg.from === "user" ? "Tu" : "AI"}
+            </div>
+
             <div className={styles.messageContent}>
               {msg.isLoading ? (
                 <span>
@@ -350,8 +359,8 @@ export default function Chat() {
             rows="1"
             style={{
               resize: "none",
-              minHeight: "44px",
-              maxHeight: "120px",
+              minHeight: "30px",
+              maxHeight: "30px",
               overflow: "hidden",
             }}
             onInput={(e) => {
