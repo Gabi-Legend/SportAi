@@ -31,43 +31,34 @@
   gap: 10px;
 }
 
-.inputBox {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(6px);
-  padding: 10px 15px;
-  border-radius: 12px;
-  width: 350px;
-}
-
-.icon {
-  color: #94a3b8;
-  margin-right: 8px;
-}
-
-.searchInput {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: white;
-  width: 100%;
-  font-size: 16px;
-}
-
-.sendBtn {
-  padding: 12px 25px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
-  color: white;
-  font-size: 16px;
+/* Butonul principal */
+.startBtn {
+  margin-top: 1rem;
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  border: none;
+  border-radius: 50px;
   cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(79, 172, 254, 0.4);
 }
 
-.sendBtn:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
+.startBtn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+}
+
+/* Animație fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
