@@ -1,64 +1,218 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 .displayContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+  background: #0f172a;
   color: white;
   text-align: center;
+  padding: 2rem;
+}
+
+.backgroundElements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.gridPattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+      rgba(59, 130, 246, 0.1) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.ball1 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.1) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  top: 20%;
+  right: 10%;
+  filter: blur(40px);
+}
+
+.heroSection {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
 }
 
 .appName {
-  font-size: 60px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+}
+
+.sport {
+  background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ml {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .tagline {
-  font-size: 18px;
+  font-size: 1.25rem;
   color: #94a3b8;
-  margin-bottom: 40px;
+  margin-bottom: 3rem;
+  font-weight: 400;
 }
 
-.startConv {
+.features {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
 }
 
-/* Butonul principal */
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.feature:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.featureIcon {
+  font-size: 1rem;
+}
+
 .startBtn {
-  margin-top: 1rem;
   padding: 1rem 2.5rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border: none;
-  border-radius: 50px;
+  border-radius: 2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(79, 172, 254, 0.4);
+  transition: all 0.2s ease;
+  margin: 1rem 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .startBtn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
-/* Animație fade-in */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+.startBtn:active {
+  transform: translateY(0);
+}
+
+.buttonText {
+  position: relative;
+  z-index: 2;
+}
+
+.buttonGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.startBtn:hover .buttonGlow {
+  width: 150px;
+  height: 150px;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 400;
+  opacity: 0.8;
+  margin-top: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .displayContainer {
+    padding: 1.5rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .features {
+    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .feature {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .startBtn {
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+  }
+
+  .ball1 {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .displayContainer {
+    padding: 1rem;
+  }
+
+  .startBtn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
   }
 }
