@@ -216,3 +216,162 @@
     font-size: 1.1rem;
   }
 }
+
+/* Auth Section Styles */
+.authSection {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.authLoading {
+  color: #fff;
+  font-size: 14px;
+}
+
+/* Auth Buttons (when not logged in) */
+.authButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.loginBtn,
+.registerBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginBtn {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+.loginBtn:hover {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.registerBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.registerBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* User Profile (when logged in) */
+.userProfile {
+  position: relative;
+}
+
+.userAvatar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.userAvatar:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.userEmail {
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* User Menu Dropdown */
+.userMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 1001;
+}
+
+.userInfo {
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.userEmailFull {
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  word-break: break-word;
+}
+
+.logoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logoutBtn:hover {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .authSection {
+    top: 10px;
+    right: 10px;
+  }
+
+  .userEmail {
+    max-width: 100px;
+  }
+
+  .userMenu {
+    min-width: 180px;
+  }
+
+  .authButtons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .loginBtn,
+  .registerBtn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
