@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/app/firebase/firebase";
 import styles from "./page.module.css";
@@ -10,7 +11,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,10 +39,8 @@ export default function Register() {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      setSuccess(true);
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+      // Redirecționează către pagina principală după înregistrarea cu succes
+      router.push("/");
     } catch (error) {
       switch (error.code) {
         case "auth/email-already-in-use":
@@ -59,25 +58,6 @@ export default function Register() {
     }
     setLoading(false);
   };
-
-  if (success) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.successCard}>
-          <h2 className={styles.successTitle}>Registration Successful!</h2>
-          <p className={styles.successMessage}>
-            Your account has been created successfully.
-          </p>
-          <button
-            className={styles.backButton}
-            onClick={() => setSuccess(false)}
-          >
-            Back to Form
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.container}>

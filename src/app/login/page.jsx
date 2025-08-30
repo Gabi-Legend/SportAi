@@ -32,7 +32,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // Redirect to dashboard or home page after successful login
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       switch (error.code) {
         case "auth/user-not-found":
