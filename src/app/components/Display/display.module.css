@@ -309,14 +309,13 @@
   background: rgba(220, 53, 69, 0.1);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .displayContainer {
     padding: 1.5rem;
   }
 
   .heroSection {
-    margin-top: 80px; /* Mai mult spațiu pe mobile */
+    margin-top: 80px;
   }
 
   .features {
