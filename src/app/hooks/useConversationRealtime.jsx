@@ -14,7 +14,6 @@ import {
 class ConversationsServiceInline {
   constructor() {
     this.basePath = "users";
-    console.log("Inline service created with database:", database);
   }
 
   getUserConversationsPath(userId) {
@@ -56,7 +55,6 @@ class ConversationsServiceInline {
   }
 
   async getUserConversations(userId) {
-    console.log("Getting conversations for user:", userId);
     try {
       const conversationsRef = ref(
         database,
@@ -88,7 +86,6 @@ class ConversationsServiceInline {
       // Sortează după updatedAt
       conversations.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
-      console.log("Found conversations:", conversations);
       return conversations;
     } catch (error) {
       console.error("Error getting conversations:", error);
@@ -227,8 +224,6 @@ export function useConversationsRealtime() {
   const [error, setError] = useState(null);
 
   console.log("Hook initialized, user:", user?.email);
-  console.log("Database available:", !!database);
-  console.log("Service available:", !!conversationsService);
 
   const loadConversations = async () => {
     if (!user) {
@@ -238,11 +233,9 @@ export function useConversationsRealtime() {
 
     setLoading(true);
     try {
-      console.log("Loading conversations...");
       const userConversations = await conversationsService.getUserConversations(
         user.uid
       );
-      console.log("Conversations loaded:", userConversations);
       setConversations(userConversations);
       setError(null);
     } catch (err) {
@@ -259,7 +252,6 @@ export function useConversationsRealtime() {
     }
 
     try {
-      console.log("Creating new conversation...");
       const newConversation = await conversationsService.createConversation(
         user.uid,
         title || "Conversație nouă"
