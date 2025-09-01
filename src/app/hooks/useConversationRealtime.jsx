@@ -1,6 +1,4 @@
 // src/app/hooks/useConversationsRealtime.js
-// Soluție temporară cu serviciul inclus direct în hook
-
 import { useState, useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, database } from "../firebase/firebase";
@@ -13,7 +11,6 @@ import {
   serverTimestamp,
 } from "firebase/database";
 
-// Serviciu inline pentru debugging
 class ConversationsServiceInline {
   constructor() {
     this.basePath = "users";
@@ -39,7 +36,7 @@ class ConversationsServiceInline {
 
       const conversationData = {
         title,
-        createdAt: Date.now(), // folosim Date.now() în loc de serverTimestamp()
+        createdAt: Date.now(),
         updatedAt: Date.now(),
         isActive: true,
         messageCount: 0,

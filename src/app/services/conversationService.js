@@ -204,10 +204,8 @@ export class ConversationsService {
       return content;
     }
 
-    // Ia primele 47 de caractere și adaugă "..."
     return content.substring(0, 47) + "...";
   }
 }
 
-// Exportă o instanță singleton
 export const conversationsService = new ConversationsService();
