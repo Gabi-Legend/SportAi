@@ -125,12 +125,6 @@ export async function POST(req) {
       minute: "2-digit",
     });
 
-    console.log(
-      `Procesez mesaj: "${message.substring(0, 100)}${
-        message.length > 100 ? "..." : ""
-      }"`
-    );
-
     // Timeout pentru request
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secunde timeout
