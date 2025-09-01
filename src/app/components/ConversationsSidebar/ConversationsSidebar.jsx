@@ -1,7 +1,7 @@
 // components/ConversationsSidebar.js
 "use client";
 import { useState } from "react";
-import { useConversations } from "@/hooks/useConversations";
+import { useConversationsRealtime as useConversations } from "@/app/hooks/useConversationRealtime";
 import {
   MessageSquare,
   Plus,

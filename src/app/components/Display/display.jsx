@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "@/app/firebase/firebase";
 import { User, LogOut, MessageSquare } from "lucide-react";
-import ConversationsSidebar from "@/components/ConversationsSidebar";
-import { useConversations } from "@/hooks/useConversations";
+import ConversationsSidebar from "../ConversationsSidebar/ConversationsSidebar";
+import { useConversationsRealtime as useConversations } from "@/app/hooks/useConversationRealtime";
 import styles from "./display.module.css";
 
 export default function Display() {

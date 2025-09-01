@@ -382,3 +382,65 @@
     font-size: 1.1rem;
   }
 }
+
+.withSidebar {
+  margin-left: 300px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Stiluri pentru hint-ul de autentificare */
+.authHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: rgba(79, 70, 229, 0.1);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  border-radius: 8px;
+  color: #a78bfa;
+  font-size: 14px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.startBtn {
+  position: relative;
+  overflow: hidden;
+}
+
+.startBtn:hover .buttonText {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .withSidebar {
+    margin-left: 0;
+  }
+
+  .authHint {
+    font-size: 12px;
+    padding: 10px 16px;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.userProfile {
+  animation: slideIn 0.3s ease;
+}
+
+.authButtons {
+  animation: slideIn 0.3s ease;
+}
