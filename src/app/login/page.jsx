@@ -15,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -34,6 +35,7 @@ export default function Login() {
       // Redirect to home page after successful login
       router.push("/");
     } catch (error) {
+      console.error("Login error:", error); // Pentru debugging
       switch (error.code) {
         case "auth/user-not-found":
           setError("No account found with this email");
@@ -50,8 +52,11 @@ export default function Login() {
         case "auth/too-many-requests":
           setError("Too many failed attempts. Please try again later");
           break;
+        case "auth/invalid-credential":
+          setError("Invalid email or password");
+          break;
         default:
-          setError("Login failed. Please try again.");
+          setError(`Login failed: ${error.message}`);
       }
     }
     setLoading(false);
@@ -59,31 +64,49 @@ export default function Login() {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+
+    // Validare email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
       setError("Please enter your email address");
       return;
     }
 
-    setLoading(true);
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    setResetLoading(true);
     setError("");
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email, {
+        url: window.location.origin + "/login",
+        handleCodeInApp: false,
+      });
+
       setResetEmailSent(true);
       setError("");
     } catch (error) {
       switch (error.code) {
         case "auth/user-not-found":
-          setError("No account found with this email");
+          setError("No account found with this email address");
           break;
         case "auth/invalid-email":
-          setError("Invalid email address");
+          setError("Invalid email address format");
+          break;
+        case "auth/too-many-requests":
+          setError("Too many requests. Please wait before trying again");
+          break;
+        case "auth/network-request-failed":
+          setError("Network error. Please check your connection");
           break;
         default:
-          setError("Failed to send reset email. Please try again.");
+          setError(`Failed to send reset email: ${error.message}`);
       }
     }
-    setLoading(false);
+    setResetLoading(false);
   };
 
   if (resetEmailSent) {
@@ -92,17 +115,32 @@ export default function Login() {
         <div className={styles.successCard}>
           <h2 className={styles.successTitle}>Reset Email Sent!</h2>
           <p className={styles.successMessage}>
-            Check your email for password reset instructions.
+            We've sent a password reset link to <strong>{email}</strong>.
           </p>
-          <button
-            className={styles.backButton}
-            onClick={() => {
-              setResetEmailSent(false);
-              setShowForgotPassword(false);
-            }}
-          >
-            Back to Login
-          </button>
+          <p className={styles.successMessage}>
+            Check your email inbox (and spam folder) for further instructions.
+          </p>
+          <div className={styles.buttonGroup}>
+            <button
+              className={styles.backButton}
+              onClick={() => {
+                setResetEmailSent(false);
+                setShowForgotPassword(false);
+                setEmail(""); // Curăță email-ul pentru securitate
+              }}
+            >
+              Back to Login
+            </button>
+            <button
+              className={styles.secondaryButton}
+              onClick={() => {
+                setResetEmailSent(false);
+                // Rămâi pe ecranul de forgot password pentru a retrimite
+              }}
+            >
+              Send Again
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -114,7 +152,8 @@ export default function Login() {
         <div className={styles.card}>
           <h1 className={styles.title}>Reset Password</h1>
           <p className={styles.subtitle}>
-            Enter your email to reset your password
+            Enter your email address and we'll send you a link to reset your
+            password
           </p>
 
           <form onSubmit={handleForgotPassword} className={styles.form}>
@@ -129,7 +168,8 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 className={styles.input}
                 placeholder="Enter your email"
-                disabled={loading}
+                disabled={resetLoading}
+                required
               />
             </div>
 
@@ -138,11 +178,11 @@ export default function Login() {
             <button
               type="submit"
               className={`${styles.submitButton} ${
-                loading ? styles.loading : ""
+                resetLoading ? styles.loading : ""
               }`}
-              disabled={loading}
+              disabled={resetLoading || !email.trim()}
             >
-              {loading ? "Sending..." : "Send Reset Email"}
+              {resetLoading ? "Sending..." : "Send Reset Email"}
             </button>
           </form>
 
@@ -151,7 +191,10 @@ export default function Login() {
               Remember your password?{" "}
               <button
                 type="button"
-                onClick={() => setShowForgotPassword(false)}
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setError(""); // Curăță erorile
+                }}
                 className={styles.linkButton}
               >
                 Back to Login
@@ -182,6 +225,7 @@ export default function Login() {
               className={styles.input}
               placeholder="Enter your email"
               disabled={loading}
+              required
             />
           </div>
 
@@ -197,6 +241,7 @@ export default function Login() {
               className={styles.input}
               placeholder="Enter your password"
               disabled={loading}
+              required
             />
           </div>
 
@@ -205,7 +250,10 @@ export default function Login() {
           <div className={styles.forgotPasswordContainer}>
             <button
               type="button"
-              onClick={() => setShowForgotPassword(true)}
+              onClick={() => {
+                setShowForgotPassword(true);
+                setError(""); // Curăță erorile
+              }}
               className={styles.forgotPasswordLink}
             >
               Forgot your password?
