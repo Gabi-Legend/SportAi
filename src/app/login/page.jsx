@@ -22,7 +22,7 @@ export default function Login() {
     setError("");
     setLoading(true);
 
-    // Validation
+    // Validate input
     if (!email || !password) {
       setError("All fields are required");
       setLoading(false);
@@ -31,7 +31,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redirect to dashboard or home page after successful login
+      // Redirect to home page after successful login
       router.push("/");
     } catch (error) {
       switch (error.code) {
@@ -113,7 +113,9 @@ export default function Login() {
       <div className={styles.container}>
         <div className={styles.card}>
           <h1 className={styles.title}>Reset Password</h1>
-          <p className={styles.subtitle}>Enter your email to reset password</p>
+          <p className={styles.subtitle}>
+            Enter your email to reset your password
+          </p>
 
           <form onSubmit={handleForgotPassword} className={styles.form}>
             <div className={styles.inputGroup}>

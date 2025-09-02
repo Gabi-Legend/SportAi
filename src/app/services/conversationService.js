@@ -20,8 +20,8 @@ export class ConversationsService {
     this.collectionName = "conversations";
   }
 
-  // Creează o conversație nouă
-  async createConversation(userId, title = "Conversație nouă") {
+  // Creates a new conversation
+  async createConversation(userId, title = "New Conversation") {
     try {
       const conversationData = {
         userId,
@@ -43,7 +43,7 @@ export class ConversationsService {
     }
   }
 
-  // Adaugă un mesaj la o conversație existentă
+  // Adds a message to an existing conversation
   async addMessage(conversationId, message) {
     try {
       const conversationRef = doc(db, this.collectionName, conversationId);
@@ -57,9 +57,9 @@ export class ConversationsService {
       const newMessage = {
         id: Date.now().toString(),
         content: message.content,
-        sender: message.sender, // "user" sau "ai"
+        sender: message.sender, // "user" or "ai"
         timestamp: serverTimestamp(),
-        ...message, // pentru orice alte proprietăți
+        ...message, // for any other properties
       };
 
       const updatedMessages = [...currentMessages, newMessage];
@@ -76,7 +76,7 @@ export class ConversationsService {
     }
   }
 
-  // Obține toate conversațiile unui utilizator
+  // Gets all conversations of a user
   async getUserConversations(userId) {
     try {
       const q = query(
@@ -103,7 +103,7 @@ export class ConversationsService {
     }
   }
 
-  // Obține o conversație specifică
+  // Gets a specific conversation
   async getConversation(conversationId) {
     try {
       const conversationRef = doc(db, this.collectionName, conversationId);
@@ -123,7 +123,7 @@ export class ConversationsService {
     }
   }
 
-  // Actualizează titlul unei conversații
+  // Updates the title of a conversation
   async updateConversationTitle(conversationId, title) {
     try {
       const conversationRef = doc(db, this.collectionName, conversationId);
@@ -137,7 +137,7 @@ export class ConversationsService {
     }
   }
 
-  // Șterge o conversație (soft delete)
+  // Deletes a conversation (soft delete)
   async deleteConversation(conversationId) {
     try {
       const conversationRef = doc(db, this.collectionName, conversationId);
@@ -151,7 +151,7 @@ export class ConversationsService {
     }
   }
 
-  // Șterge definitiv o conversație
+  // Permanently deletes a conversation
   async permanentDeleteConversation(conversationId) {
     try {
       const conversationRef = doc(db, this.collectionName, conversationId);
@@ -162,7 +162,7 @@ export class ConversationsService {
     }
   }
 
-  // Obține ultimele conversații (pentru sidebar)
+  // Gets recent conversations (for sidebar)
   async getRecentConversations(userId, limitCount = 10) {
     try {
       const q = query(
@@ -193,10 +193,10 @@ export class ConversationsService {
     }
   }
 
-  // Generează un titlu automat bazat pe primul mesaj
+  // Generates an automatic title based on the first message
   generateAutoTitle(firstMessage) {
     if (!firstMessage || !firstMessage.content) {
-      return "Conversație nouă";
+      return "New Conversation";
     }
 
     const content = firstMessage.content.trim();

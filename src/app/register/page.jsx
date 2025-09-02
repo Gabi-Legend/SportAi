@@ -39,7 +39,7 @@ export default function Register() {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      // Redirecționează către pagina principală după înregistrarea cu succes
+      // Redirect to home page after successful registration
       router.push("/");
     } catch (error) {
       switch (error.code) {

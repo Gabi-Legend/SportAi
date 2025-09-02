@@ -1,4 +1,4 @@
-// pages/chat/page.js sau components/ChatPage.js
+// pages/chat/page.js or components/ChatPage.js
 "use client";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -23,12 +23,11 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Încarcă conversația când se schimbă ID-ul
+  // Load conversation when ID changes
   useEffect(() => {
     if (conversationId && isAuthenticated) {
       loadConversationData();
     } else if (!conversationId) {
-      // Resetează mesajele pentru o conversație nouă
       setMessages([]);
     }
   }, [conversationId, isAuthenticated]);
@@ -53,18 +52,15 @@ export default function ChatPage() {
       timestamp: new Date(),
     };
 
-    // Adaugă mesajul local imediat
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
 
     try {
-      // Salvează mesajul utilizatorului dacă este autentificat
       if (isAuthenticated && conversationId) {
         await addMessageToConversation(conversationId, userMessage);
       }
 
-      // Simulează răspunsul AI (înlocuiește cu API-ul tău real)
       const aiResponse = await getAIResponse(messageContent);
 
       const aiMessage = {
@@ -73,14 +69,11 @@ export default function ChatPage() {
         timestamp: new Date(),
       };
 
-      // Adaugă răspunsul AI local
       setMessages((prev) => [...prev, aiMessage]);
 
-      // Salvează răspunsul AI dacă este autentificat
       if (isAuthenticated && conversationId) {
         await addMessageToConversation(conversationId, aiMessage);
 
-        // Actualizează titlul conversației dacă este prima interacțiune
         if (currentConversation && currentConversation.messages.length <= 2) {
           const autoTitle = conversationsService.generateAutoTitle(userMessage);
           await conversationsService.updateConversationTitle(
@@ -91,11 +84,10 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      // Adaugă un mesaj de eroare
       setMessages((prev) => [
         ...prev,
         {
-          content: "Scuze, a apărut o eroare. Te rog încearcă din nou.",
+          content: "Sorry, an error occurred. Please try again.",
           sender: "ai",
           timestamp: new Date(),
           isError: true,
@@ -106,13 +98,9 @@ export default function ChatPage() {
     }
   };
 
-  // Simulare API AI (înlocuiește cu API-ul tău real)
   const getAIResponse = async (message) => {
-    // Simulează delay pentru API
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Răspuns simplu de test
-    return `Ai întrebat despre: "${message}". Aceasta este o simulare de răspuns AI pentru SportML.`;
+    return `You asked: "${message}". This is a simulated AI response for SportML.`;
   };
 
   const handleConversationSelect = (conversation) => {
@@ -122,40 +110,33 @@ export default function ChatPage() {
 
   return (
     <div className="chat-container">
-      {/* Sidebar pentru conversații */}
       <ConversationsSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onConversationSelect={handleConversationSelect}
       />
 
-      {/* Zona principală de chat */}
       <div className={`chat-main ${sidebarOpen ? "with-sidebar" : ""}`}>
-        {/* Header cu info despre salvarea conversațiilor */}
         <div className="chat-header">
           <h2>SportML Chat</h2>
           {!isAuthenticated && (
             <div className="save-warning">
-              ⚠️ Conversația nu va fi salvată. Conectează-te pentru a salva
-              istoricul.
+              ⚠️ Conversation will not be saved. Sign in to preserve history.
             </div>
           )}
           {isAuthenticated && conversationId && (
-            <div className="save-status">
-              ✅ Conversația se salvează automat
-            </div>
+            <div className="save-status">✅ Conversation auto-saves</div>
           )}
         </div>
 
-        {/* Zona de mesaje */}
         <div className="messages-container">
           {messages.length === 0 ? (
             <div className="welcome-message">
-              <h3>Bun venit la SportML!</h3>
-              <p>Întreabă-mă orice despre sport și predicții AI.</p>
+              <h3>Welcome to SportML!</h3>
+              <p>Ask me anything about sports and AI predictions.</p>
               {!isAuthenticated && (
                 <p className="auth-reminder">
-                  💡 Conectează-te pentru a salva conversațiile tale.
+                  💡 Sign in to save your conversations.
                 </p>
               )}
             </div>
@@ -169,7 +150,7 @@ export default function ChatPage() {
               >
                 <div className="message-content">{message.content}</div>
                 <div className="message-timestamp">
-                  {new Date(message.timestamp).toLocaleTimeString("ro-RO", {
+                  {new Date(message.timestamp).toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
@@ -188,7 +169,6 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Input pentru mesaje */}
         <div className="chat-input-container">
           <div className="chat-input-wrapper">
             <input
@@ -201,7 +181,7 @@ export default function ChatPage() {
                   handleSendMessage(inputValue);
                 }
               }}
-              placeholder="Întreabă despre predicții sportive..."
+              placeholder="Ask about sports predictions..."
               disabled={isLoading}
               className="chat-input"
             />
@@ -210,7 +190,7 @@ export default function ChatPage() {
               disabled={isLoading || !inputValue.trim()}
               className="send-button"
             >
-              Trimite
+              Send
             </button>
           </div>
         </div>
@@ -427,7 +407,6 @@ export default function ChatPage() {
           transform: none;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
           .with-sidebar {
             margin-left: 0;

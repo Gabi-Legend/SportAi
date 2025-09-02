@@ -11,6 +11,7 @@ import {
   serverTimestamp,
 } from "firebase/database";
 
+// Inline service for managing conversations in Firebase Realtime Database
 class ConversationsServiceInline {
   constructor() {
     this.basePath = "users";
@@ -24,7 +25,7 @@ class ConversationsServiceInline {
     return `${this.getUserConversationsPath(userId)}/${conversationId}`;
   }
 
-  async createConversation(userId, title = "Conversație nouă") {
+  async createConversation(userId, title = "New Conversation") {
     console.log("Creating conversation for:", userId);
     try {
       const conversationsRef = ref(
@@ -83,7 +84,7 @@ class ConversationsServiceInline {
         }
       }
 
-      // Sortează după updatedAt
+      // Sort by updatedAt descending
       conversations.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
       return conversations;
@@ -110,7 +111,7 @@ class ConversationsServiceInline {
 
       await set(newMessageRef, newMessage);
 
-      // Actualizează conversația
+      // Update conversation metadata
       const conversationRef = ref(
         database,
         this.getConversationPath(userId, conversationId)
@@ -201,7 +202,7 @@ class ConversationsServiceInline {
 
   generateAutoTitle(firstMessage) {
     if (!firstMessage || !firstMessage.content) {
-      return "Conversație nouă";
+      return "New Conversation";
     }
 
     const content = firstMessage.content.trim();
@@ -213,7 +214,7 @@ class ConversationsServiceInline {
   }
 }
 
-// Creează serviciul inline
+// Create inline service instance
 const conversationsService = new ConversationsServiceInline();
 
 export function useConversationsRealtime() {
@@ -240,7 +241,7 @@ export function useConversationsRealtime() {
       setError(null);
     } catch (err) {
       console.error("Error in loadConversations:", err);
-      setError("Eroare la încărcarea conversațiilor");
+      setError("Error loading conversations");
     } finally {
       setLoading(false);
     }
@@ -254,7 +255,7 @@ export function useConversationsRealtime() {
     try {
       const newConversation = await conversationsService.createConversation(
         user.uid,
-        title || "Conversație nouă"
+        title || "New Conversation"
       );
 
       setConversations((prev) => [newConversation, ...prev]);
@@ -262,7 +263,7 @@ export function useConversationsRealtime() {
       return newConversation;
     } catch (err) {
       console.error("Error creating conversation:", err);
-      setError("Eroare la crearea conversației");
+      setError("Error creating conversation");
       throw err;
     }
   };
@@ -302,7 +303,7 @@ export function useConversationsRealtime() {
       return newMessage;
     } catch (err) {
       console.error("Error adding message:", err);
-      setError("Eroare la salvarea mesajului");
+      setError("Error saving message");
       throw err;
     }
   };
@@ -321,7 +322,7 @@ export function useConversationsRealtime() {
       return conversation;
     } catch (err) {
       console.error("Error loading conversation:", err);
-      setError("Eroare la încărcarea conversației");
+      setError("Error loading conversation");
       throw err;
     } finally {
       setLoading(false);
@@ -344,7 +345,7 @@ export function useConversationsRealtime() {
       setError(null);
     } catch (err) {
       console.error("Error deleting conversation:", err);
-      setError("Eroare la ștergerea conversației");
+      setError("Error deleting conversation");
       throw err;
     }
   };
@@ -372,7 +373,7 @@ export function useConversationsRealtime() {
       setError(null);
     } catch (err) {
       console.error("Error updating title:", err);
-      setError("Eroare la actualizarea titlului");
+      setError("Error updating title");
       throw err;
     }
   };

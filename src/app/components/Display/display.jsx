@@ -23,10 +23,7 @@ export default function Display() {
       setUser(currentUser);
       setLoading(false);
 
-      // Deschide sidebar-ul automat când utilizatorul se conectează
-      if (currentUser) {
-        setSidebarOpen(true);
-      }
+      if (currentUser) setSidebarOpen(true);
     });
 
     return () => unsubscribe();
@@ -34,29 +31,20 @@ export default function Display() {
 
   const startChat = async () => {
     if (user) {
-      // Dacă utilizatorul este conectat, creează o conversație nouă
       try {
         const newConversation = await createNewConversation();
         router.push(`/chat?conversationId=${newConversation.id}`);
       } catch (error) {
         console.error("Error creating conversation:", error);
-        // Fallback la chat normal
         router.push("/chat");
       }
     } else {
-      // Dacă nu este conectat, mergi direct la chat
       router.push("/chat");
     }
   };
 
-  const handleLogin = () => {
-    router.push("/login");
-  };
-
-  const handleRegister = () => {
-    router.push("/register");
-  };
-
+  const handleLogin = () => router.push("/login");
+  const handleRegister = () => router.push("/register");
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -67,9 +55,7 @@ export default function Display() {
     }
   };
 
-  const toggleUserMenu = () => {
-    setShowUserMenu(!showUserMenu);
-  };
+  const toggleUserMenu = () => setShowUserMenu(!showUserMenu);
 
   const handleConversationSelect = (conversation) => {
     router.push(`/chat?conversationId=${conversation.id}`);
@@ -77,7 +63,6 @@ export default function Display() {
 
   return (
     <>
-      {/* Conversations Sidebar */}
       <ConversationsSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -89,7 +74,6 @@ export default function Display() {
           sidebarOpen ? styles.withSidebar : ""
         }`}
       >
-        {/* Background elements */}
         <div className={styles.backgroundElements}>
           <div className={`${styles.floatingBall} ${styles.ball1}`}></div>
           <div className={`${styles.floatingBall} ${styles.ball2}`}></div>
@@ -97,7 +81,6 @@ export default function Display() {
           <div className={styles.gridPattern}></div>
         </div>
 
-        {/* Auth Section */}
         <div className={styles.authSection}>
           {loading ? (
             <div className={styles.authLoading}>Loading...</div>
@@ -132,54 +115,48 @@ export default function Display() {
         </div>
 
         <div className={styles.heroSection}>
-          {/* Main title with enhanced styling */}
           <h1 className={styles.appName}>
             <span className={styles.sport}>Sport</span>
             <span className={styles.ml}>ML</span>
           </h1>
-
-          {/* Enhanced tagline */}
           <p className={styles.tagline}>
-            Predicții sportive inteligente cu puterea AI
+            Smart sports predictions powered by AI
           </p>
 
-          {/* Feature highlights */}
           <div className={styles.features}>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>🎯</span>
-              <span>Predicții precise</span>
+              <span>Accurate predictions</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>⚡</span>
-              <span>Răspunsuri instant</span>
+              <span>Instant responses</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>📊</span>
-              <span>Analize detaliate</span>
+              <span>Detailed analysis</span>
             </div>
             {user && (
               <div className={styles.feature}>
                 <span className={styles.featureIcon}>💾</span>
-                <span>Conversații salvate</span>
+                <span>Saved conversations</span>
               </div>
             )}
           </div>
 
-          {/* Enhanced start button */}
           <button className={styles.startBtn} onClick={startChat}>
             <span className={styles.buttonText}>
-              {user ? "🚀 Începe conversația" : "🚀 Începe (fără salvare)"}
+              {user ? "🚀 Start the conversation" : "🚀 Start (unsaved)"}
             </span>
             <div className={styles.buttonGlow}></div>
           </button>
 
-          {/* Additional info */}
           <p className={styles.subtitle}>Powered by DeepSeek AI</p>
 
           {!user && (
             <p className={styles.authHint}>
               <MessageSquare size={16} />
-              Conectează-te pentru a salva conversațiile
+              Log in to save your conversations
             </p>
           )}
         </div>

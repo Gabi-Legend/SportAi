@@ -1,4 +1,3 @@
-// components/ConversationsSidebar.js
 "use client";
 import { useState, useEffect } from "react";
 import { useConversationsRealtime as useConversations } from "@/app/hooks/useConversationRealtime";
@@ -34,7 +33,6 @@ export default function ConversationsSidebar({
   const [editingTitle, setEditingTitle] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detectează dacă e mobil
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -46,11 +44,10 @@ export default function ConversationsSidebar({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Închide sidebar-ul când se selectează o conversație pe mobil
   const handleConversationSelect = (conversation) => {
     onConversationSelect(conversation);
     if (isMobile) {
-      onToggle(); // Închide sidebar-ul pe mobil
+      onToggle();
     }
   };
 
@@ -67,7 +64,7 @@ export default function ConversationsSidebar({
 
   const handleDeleteConversation = async (conversationId, e) => {
     e.stopPropagation();
-    if (window.confirm("Ești sigur că vrei să ștergi această conversație?")) {
+    if (window.confirm("Are you sure you want to delete this conversation?")) {
       try {
         await deleteConversation(conversationId);
       } catch (error) {
@@ -107,17 +104,15 @@ export default function ConversationsSidebar({
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) return "Azi";
-    if (diffDays === 2) return "Ieri";
-    if (diffDays <= 7) return `${diffDays} zile`;
-    return date.toLocaleDateString("ro-RO");
+    if (diffDays === 1) return "Today";
+    if (diffDays === 2) return "Yesterday";
+    if (diffDays <= 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString("en-US");
   };
 
-  // Pentru mobil - nu afișăm mesajul de autentificare dacă sidebar-ul e închis
   if (!isAuthenticated) {
     return (
       <>
-        {/* Toggle Button - întotdeauna vizibil */}
         <div className={styles.toggleBtn} onClick={onToggle}>
           {isMobile ? (
             <Menu size={20} />
@@ -128,12 +123,10 @@ export default function ConversationsSidebar({
           )}
         </div>
 
-        {/* Overlay pentru mobil */}
         {isOpen && isMobile && (
           <div className={styles.overlay} onClick={onToggle} />
         )}
 
-        {/* Sidebar */}
         <div
           className={`${styles.sidebar} ${
             isOpen ? styles.open : styles.closed
@@ -142,7 +135,7 @@ export default function ConversationsSidebar({
           {isOpen && (
             <div className={styles.authMessage}>
               <MessageSquare size={32} className={styles.authIcon} />
-              <p>Conectează-te pentru a salva conversațiile</p>
+              <p>Log in to save your conversations</p>
             </div>
           )}
         </div>
@@ -152,7 +145,6 @@ export default function ConversationsSidebar({
 
   return (
     <>
-      {/* Toggle Button - întotdeauna vizibil */}
       <div className={styles.toggleBtn} onClick={onToggle}>
         {isMobile ? (
           <Menu size={20} />
@@ -163,12 +155,10 @@ export default function ConversationsSidebar({
         )}
       </div>
 
-      {/* Overlay pentru mobil */}
       {isOpen && isMobile && (
         <div className={styles.overlay} onClick={onToggle} />
       )}
 
-      {/* Sidebar */}
       <div
         className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed} ${
           isMobile ? styles.mobile : styles.desktop
@@ -176,31 +166,29 @@ export default function ConversationsSidebar({
       >
         {isOpen && (
           <div className={styles.sidebarContent}>
-            {/* Header */}
             <div className={styles.header}>
-              <h3 className={styles.title}>Conversații</h3>
+              <h3 className={styles.title}>Conversations</h3>
               <button
                 className={styles.newChatBtn}
                 onClick={handleNewConversation}
-                title="Conversație nouă"
+                title="New Conversation"
               >
                 <Plus size={18} />
               </button>
             </div>
 
-            {/* Conversations List */}
             <div className={styles.conversationsList}>
               {loading ? (
-                <div className={styles.loading}>Se încarcă...</div>
+                <div className={styles.loading}>Loading...</div>
               ) : conversations.length === 0 ? (
                 <div className={styles.emptyState}>
                   <MessageSquare size={32} className={styles.emptyIcon} />
-                  <p>Nicio conversație încă</p>
+                  <p>No conversations yet</p>
                   <button
                     className={styles.startBtn}
                     onClick={handleNewConversation}
                   >
-                    Începe prima conversație
+                    Start your first conversation
                   </button>
                 </div>
               ) : (
@@ -256,7 +244,7 @@ export default function ConversationsSidebar({
                               </span>
                               {conversation.messageCount > 0 && (
                                 <span className={styles.messageCount}>
-                                  {conversation.messageCount} mesaje
+                                  {conversation.messageCount} messages
                                 </span>
                               )}
                             </div>
@@ -265,7 +253,7 @@ export default function ConversationsSidebar({
                             <button
                               onClick={(e) => startEditing(conversation, e)}
                               className={styles.actionBtn}
-                              title="Editează titlul"
+                              title="Edit title"
                             >
                               <Edit3 size={14} />
                             </button>
@@ -274,7 +262,7 @@ export default function ConversationsSidebar({
                                 handleDeleteConversation(conversation.id, e)
                               }
                               className={styles.deleteBtn}
-                              title="Șterge conversația"
+                              title="Delete conversation"
                             >
                               <Trash2 size={14} />
                             </button>
