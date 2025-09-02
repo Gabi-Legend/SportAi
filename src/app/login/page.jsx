@@ -81,14 +81,15 @@ export default function Login() {
     setError("");
 
     try {
-      await sendPasswordResetEmail(auth, email, {
-        url: window.location.origin + "/login",
-        handleCodeInApp: false,
-      });
+      // Trimite email simplu fără URL personalizat
+      // Utilizatorul va fi redirectionat la o pagină Firebase generică
+      await sendPasswordResetEmail(auth, email);
 
       setResetEmailSent(true);
       setError("");
+      console.log("Password reset email sent successfully"); // Pentru debugging
     } catch (error) {
+      console.error("Password reset error:", error); // Pentru debugging
       switch (error.code) {
         case "auth/user-not-found":
           setError("No account found with this email address");
