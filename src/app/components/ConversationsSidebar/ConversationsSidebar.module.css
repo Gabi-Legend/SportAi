@@ -1,4 +1,4 @@
-/* components/ConversationsSidebar.module.css */
+/* components/ConversationsSidebar.module.css - FIXES */
 
 /* Toggle Button - acum separat și întotdeauna vizibil */
 .toggleBtn {
@@ -38,7 +38,7 @@
   backdrop-filter: blur(2px);
 }
 
-/* Sidebar */
+/* Sidebar - FIX: Adăugat overflow hidden pe sidebar principal */
 .sidebar {
   position: fixed;
   top: 0;
@@ -48,6 +48,8 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden; /* FIX: Previne ieșirea conținutului din sidebar */
+  contain: layout; /* FIX: Forțează respectarea limitelor */
 }
 
 /* Desktop styles */
@@ -56,7 +58,7 @@
 }
 
 .desktop.open {
-  width: 300px;
+  width: 350px;
   transform: translateX(0);
 }
 
@@ -69,7 +71,7 @@
 /* Mobile styles */
 .mobile {
   left: 0;
-  width: 280px;
+  width: 320px;
   transform: translateX(-100%);
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
@@ -82,12 +84,17 @@
   transform: translateX(-100%);
 }
 
+/* FIX: Îmbunătățiri pentru sidebarContent */
 .sidebarContent {
-  padding: 80px 20px 20px;
+  padding: 80px 20px 20px 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 100%; /* FIX: Nu depășește părintele */
+  min-width: 0; /* FIX: Permite shrinking */
+  overflow: hidden; /* FIX: Previne overflow */
+  box-sizing: border-box; /* FIX: Include padding */
 }
 
 .header {
@@ -97,6 +104,10 @@
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid #333;
+  flex-shrink: 0; /* FIX: Header nu se micșorează */
+  width: 100%;
+  max-width: 100%; /* FIX: Nu depășește părintele */
+  box-sizing: border-box;
 }
 
 .title {
@@ -104,6 +115,7 @@
   font-size: 18px;
   font-weight: 600;
   margin: 0;
+  white-space: nowrap; /* FIX: Previne wrap */
 }
 
 .newChatBtn {
@@ -118,6 +130,7 @@
   cursor: pointer;
   color: white;
   transition: all 0.2s ease;
+  flex-shrink: 0; /* FIX: Butonul nu se micșorează */
 }
 
 .newChatBtn:hover {
@@ -125,10 +138,15 @@
   transform: scale(1.05);
 }
 
+/* FIX: Îmbunătățiri pentru lista de conversații */
 .conversationsList {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden; /* FIX: Ascunde overflow horizontal */
   padding-right: 5px;
+  min-height: 0; /* FIX: Permite shrinking */
+  width: 100%;
+  max-width: 100%; /* FIX: Nu depășește părintele */
 }
 
 .conversationsList::-webkit-scrollbar {
@@ -144,14 +162,20 @@
   border-radius: 2px;
 }
 
+/* FIX: Îmbunătățiri majore pentru conversationItem */
 .conversationItem {
   margin-bottom: 8px;
-  padding: 12px;
+  padding: 12px 12px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid transparent;
+  width: calc(100% - 5px); /* FIX: Scade padding-ul pentru scrollbar */
+  max-width: calc(100% - 5px); /* FIX: Nu depășește părintele */
+  box-sizing: border-box; /* FIX: Include padding în lățime */
+  min-width: 0; /* FIX: Permite shrinking */
+  overflow: hidden; /* FIX: Ascunde overflow */
 }
 
 .conversationItem:hover {
@@ -164,16 +188,22 @@
   border-color: #4f46e5;
 }
 
+/* FIX: Îmbunătățiri pentru conversationMain */
 .conversationMain {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
+  width: 100%; /* FIX: Forțează lățimea */
+  max-width: 100%; /* FIX: Nu depășește părintele */
+  min-width: 0; /* FIX: Permite shrinking */
 }
 
+/* FIX: Îmbunătățiri pentru conversationInfo */
 .conversationInfo {
   flex: 1;
-  min-width: 0;
+  min-width: 0; /* FIX: Foarte important pentru text overflow */
+  overflow: hidden; /* FIX: Ascunde overflow */
 }
 
 .conversationTitle {
@@ -184,6 +214,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 100%; /* FIX: Forțează lățimea */
 }
 
 .conversationMeta {
@@ -192,18 +223,22 @@
   gap: 4px;
   font-size: 11px;
   color: #a0a0a0;
+  overflow: hidden; /* FIX: Ascunde overflow */
 }
 
 .messageCount {
   margin-left: 8px;
   color: #6366f1;
+  white-space: nowrap; /* FIX: Previne wrap */
 }
 
+/* FIX: Îmbunătățiri pentru conversationActions */
 .conversationActions {
   display: flex;
   gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
+  flex-shrink: 0; /* FIX: Acțiunile nu se micșorează */
 }
 
 .conversationItem:hover .conversationActions {
@@ -221,6 +256,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* FIX: Butoanele nu se micșorează */
 }
 
 .actionBtn:hover {
@@ -239,6 +275,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* FIX: Butoanele nu se micșorează */
 }
 
 .deleteBtn:hover {
@@ -246,12 +283,16 @@
   color: #f87171;
 }
 
+/* FIX: Îmbunătățiri pentru editingContainer */
 .editingContainer {
   width: 100%;
+  max-width: 100%; /* FIX: Nu depășește lățimea părintelui */
+  box-sizing: border-box; /* FIX: Include padding */
 }
 
 .editInput {
   width: 100%;
+  max-width: 100%; /* FIX: Nu depășește lățimea părintelui */
   background: #333;
   border: 1px solid #4f46e5;
   border-radius: 4px;
@@ -260,11 +301,13 @@
   font-size: 14px;
   outline: none;
   margin-bottom: 8px;
+  box-sizing: border-box; /* FIX: Include padding în lățime */
 }
 
 .editActions {
   display: flex;
   gap: 4px;
+  justify-content: flex-start; /* FIX: Aliniază la început */
 }
 
 .saveBtn {
@@ -373,7 +416,7 @@
   }
 
   .sidebarContent {
-    padding: 70px 15px 15px;
+    padding: 70px 16px 15px 16px;
   }
 
   .conversationItem {
@@ -401,7 +444,7 @@
 
   /* Spațiu pentru conținutul principal când sidebar-ul e deschis */
   .mobile.open ~ .mainContent {
-    margin-left: 280px;
+    margin-left: 320px;
   }
 }
 
@@ -431,12 +474,12 @@
 /* Responsivitate îmbunătățită */
 @media (min-width: 769px) and (max-width: 1024px) {
   .desktop.open {
-    width: 280px;
+    width: 320px;
   }
 }
 
 @media (min-width: 1200px) {
   .desktop.open {
-    width: 320px;
+    width: 380px;
   }
 }
