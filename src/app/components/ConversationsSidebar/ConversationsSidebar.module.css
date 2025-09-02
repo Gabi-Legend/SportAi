@@ -63,6 +63,7 @@
 .desktop.closed {
   width: 0;
   transform: translateX(-100%);
+  overflow: hidden;
 }
 
 /* Mobile styles */

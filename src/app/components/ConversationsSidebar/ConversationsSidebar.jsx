@@ -139,7 +139,7 @@ export default function ConversationsSidebar({
             isOpen ? styles.open : styles.closed
           } ${isMobile ? styles.mobile : styles.desktop}`}
         >
-          {(isOpen || !isMobile) && (
+          {isOpen && (
             <div className={styles.authMessage}>
               <MessageSquare size={32} className={styles.authIcon} />
               <p>Conectează-te pentru a salva conversațiile</p>
