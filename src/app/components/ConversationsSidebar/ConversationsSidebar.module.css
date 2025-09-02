@@ -1,53 +1,92 @@
 /* components/ConversationsSidebar.module.css */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border-right: 1px solid #333;
-  transition: all 0.3s ease;
-  z-index: 1000;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-}
 
-.open {
-  width: 300px;
-}
-
-.closed {
-  width: 50px;
-}
-
+/* Toggle Button - acum separat și întotdeauna vizibil */
 .toggleBtn {
-  position: absolute;
+  position: fixed;
   top: 20px;
-  right: -15px;
-  width: 30px;
-  height: 30px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
   background: #4f46e5;
   border: none;
-  border-radius: 50%;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: white;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-  transition: all 0.2s ease;
-  z-index: 1001;
+  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1002;
 }
 
 .toggleBtn:hover {
   background: #6366f1;
-  transform: scale(1.1);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.6);
+}
+
+/* Overlay pentru mobil */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-right: 1px solid #333;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Desktop styles */
+.desktop {
+  left: 0;
+}
+
+.desktop.open {
+  width: 300px;
+  transform: translateX(0);
+}
+
+.desktop.closed {
+  width: 0;
+  transform: translateX(-100%);
+}
+
+/* Mobile styles */
+.mobile {
+  left: 0;
+  width: 280px;
+  transform: translateX(-100%);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.mobile.open {
+  transform: translateX(0);
+}
+
+.mobile.closed {
+  transform: translateX(-100%);
 }
 
 .sidebarContent {
-  padding: 60px 20px 20px;
+  padding: 80px 20px 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .header {
@@ -323,13 +362,80 @@
   line-height: 1.5;
 }
 
-/* Responsive */
+/* Touch improvements pentru mobil */
 @media (max-width: 768px) {
-  .open {
-    width: 280px;
+  .toggleBtn {
+    width: 44px;
+    height: 44px;
+    top: 15px;
+    left: 15px;
   }
 
-  .sidebar {
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  .sidebarContent {
+    padding: 70px 15px 15px;
+  }
+
+  .conversationItem {
+    padding: 16px 12px;
+    margin-bottom: 6px;
+  }
+
+  .conversationTitle {
+    font-size: 15px;
+  }
+
+  .conversationMeta {
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .conversationActions {
+    opacity: 1; /* Întotdeauna vizibile pe mobil */
+  }
+
+  .actionBtn,
+  .deleteBtn {
+    padding: 8px;
+  }
+
+  /* Spațiu pentru conținutul principal când sidebar-ul e deschis */
+  .mobile.open ~ .mainContent {
+    margin-left: 280px;
+  }
+}
+
+/* Animații îmbunătățite */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.mobile.open {
+  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsivitate îmbunătățită */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .desktop.open {
+    width: 280px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .desktop.open {
+    width: 320px;
   }
 }

@@ -1,6 +1,6 @@
 // components/ConversationsSidebar.js
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useConversationsRealtime as useConversations } from "@/app/hooks/useConversationRealtime";
 import {
   MessageSquare,
@@ -11,7 +11,7 @@ import {
   X,
   Clock,
   ChevronLeft,
-  ChevronRight,
+  Menu,
 } from "lucide-react";
 import styles from "./ConversationsSidebar.module.css";
 
@@ -32,13 +32,34 @@ export default function ConversationsSidebar({
 
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectează dacă e mobil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Închide sidebar-ul când se selectează o conversație pe mobil
+  const handleConversationSelect = (conversation) => {
+    onConversationSelect(conversation);
+    if (isMobile) {
+      onToggle(); // Închide sidebar-ul pe mobil
+    }
+  };
 
   const handleNewConversation = async () => {
     if (!isAuthenticated) return;
 
     try {
       const newConv = await createNewConversation();
-      onConversationSelect(newConv);
+      handleConversationSelect(newConv);
     } catch (error) {
       console.error("Error creating conversation:", error);
     }
@@ -92,145 +113,182 @@ export default function ConversationsSidebar({
     return date.toLocaleDateString("ro-RO");
   };
 
+  // Pentru mobil - nu afișăm mesajul de autentificare dacă sidebar-ul e închis
   if (!isAuthenticated) {
     return (
-      <div
-        className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}
-      >
+      <>
+        {/* Toggle Button - întotdeauna vizibil */}
         <div className={styles.toggleBtn} onClick={onToggle}>
-          {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          {isMobile ? (
+            <Menu size={20} />
+          ) : isOpen ? (
+            <ChevronLeft size={20} />
+          ) : (
+            <Menu size={20} />
+          )}
         </div>
-        <div className={styles.authMessage}>
-          <MessageSquare size={32} className={styles.authIcon} />
-          <p>Conectează-te pentru a salva conversațiile</p>
+
+        {/* Overlay pentru mobil */}
+        {isOpen && isMobile && (
+          <div className={styles.overlay} onClick={onToggle} />
+        )}
+
+        {/* Sidebar */}
+        <div
+          className={`${styles.sidebar} ${
+            isOpen ? styles.open : styles.closed
+          } ${isMobile ? styles.mobile : styles.desktop}`}
+        >
+          {(isOpen || !isMobile) && (
+            <div className={styles.authMessage}>
+              <MessageSquare size={32} className={styles.authIcon} />
+              <p>Conectează-te pentru a salva conversațiile</p>
+            </div>
+          )}
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div
-      className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}
-    >
-      {/* Toggle Button */}
+    <>
+      {/* Toggle Button - întotdeauna vizibil */}
       <div className={styles.toggleBtn} onClick={onToggle}>
-        {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        {isMobile ? (
+          <Menu size={20} />
+        ) : isOpen ? (
+          <ChevronLeft size={20} />
+        ) : (
+          <Menu size={20} />
+        )}
       </div>
 
-      {isOpen && (
-        <div className={styles.sidebarContent}>
-          {/* Header */}
-          <div className={styles.header}>
-            <h3 className={styles.title}>Conversații</h3>
-            <button
-              className={styles.newChatBtn}
-              onClick={handleNewConversation}
-              title="Conversație nouă"
-            >
-              <Plus size={18} />
-            </button>
-          </div>
+      {/* Overlay pentru mobil */}
+      {isOpen && isMobile && (
+        <div className={styles.overlay} onClick={onToggle} />
+      )}
 
-          {/* Conversations List */}
-          <div className={styles.conversationsList}>
-            {loading ? (
-              <div className={styles.loading}>Se încarcă...</div>
-            ) : conversations.length === 0 ? (
-              <div className={styles.emptyState}>
-                <MessageSquare size={32} className={styles.emptyIcon} />
-                <p>Nicio conversație încă</p>
-                <button
-                  className={styles.startBtn}
-                  onClick={handleNewConversation}
-                >
-                  Începe prima conversație
-                </button>
-              </div>
-            ) : (
-              conversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  className={`${styles.conversationItem} ${
-                    currentConversation?.id === conversation.id
-                      ? styles.active
-                      : ""
-                  }`}
-                  onClick={() => onConversationSelect(conversation)}
-                >
-                  <div className={styles.conversationMain}>
-                    {editingId === conversation.id ? (
-                      <div className={styles.editingContainer}>
-                        <input
-                          type="text"
-                          value={editingTitle}
-                          onChange={(e) => setEditingTitle(e.target.value)}
-                          className={styles.editInput}
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") saveTitle();
-                            if (e.key === "Escape") cancelEditing();
-                          }}
-                        />
-                        <div className={styles.editActions}>
-                          <button
-                            onClick={saveTitle}
-                            className={styles.saveBtn}
-                          >
-                            <Check size={12} />
-                          </button>
-                          <button
-                            onClick={cancelEditing}
-                            className={styles.cancelBtn}
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className={styles.conversationInfo}>
-                          <h4 className={styles.conversationTitle}>
-                            {conversation.title}
-                          </h4>
-                          <div className={styles.conversationMeta}>
-                            <Clock size={12} />
-                            <span>
-                              {formatTimestamp(conversation.updatedAt)}
-                            </span>
-                            {conversation.messageCount > 0 && (
-                              <span className={styles.messageCount}>
-                                {conversation.messageCount} mesaje
-                              </span>
-                            )}
+      {/* Sidebar */}
+      <div
+        className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed} ${
+          isMobile ? styles.mobile : styles.desktop
+        }`}
+      >
+        {isOpen && (
+          <div className={styles.sidebarContent}>
+            {/* Header */}
+            <div className={styles.header}>
+              <h3 className={styles.title}>Conversații</h3>
+              <button
+                className={styles.newChatBtn}
+                onClick={handleNewConversation}
+                title="Conversație nouă"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+
+            {/* Conversations List */}
+            <div className={styles.conversationsList}>
+              {loading ? (
+                <div className={styles.loading}>Se încarcă...</div>
+              ) : conversations.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <MessageSquare size={32} className={styles.emptyIcon} />
+                  <p>Nicio conversație încă</p>
+                  <button
+                    className={styles.startBtn}
+                    onClick={handleNewConversation}
+                  >
+                    Începe prima conversație
+                  </button>
+                </div>
+              ) : (
+                conversations.map((conversation) => (
+                  <div
+                    key={conversation.id}
+                    className={`${styles.conversationItem} ${
+                      currentConversation?.id === conversation.id
+                        ? styles.active
+                        : ""
+                    }`}
+                    onClick={() => handleConversationSelect(conversation)}
+                  >
+                    <div className={styles.conversationMain}>
+                      {editingId === conversation.id ? (
+                        <div className={styles.editingContainer}>
+                          <input
+                            type="text"
+                            value={editingTitle}
+                            onChange={(e) => setEditingTitle(e.target.value)}
+                            className={styles.editInput}
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveTitle();
+                              if (e.key === "Escape") cancelEditing();
+                            }}
+                          />
+                          <div className={styles.editActions}>
+                            <button
+                              onClick={saveTitle}
+                              className={styles.saveBtn}
+                            >
+                              <Check size={12} />
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className={styles.cancelBtn}
+                            >
+                              <X size={12} />
+                            </button>
                           </div>
                         </div>
-                        <div className={styles.conversationActions}>
-                          <button
-                            onClick={(e) => startEditing(conversation, e)}
-                            className={styles.actionBtn}
-                            title="Editează titlul"
-                          >
-                            <Edit3 size={14} />
-                          </button>
-                          <button
-                            onClick={(e) =>
-                              handleDeleteConversation(conversation.id, e)
-                            }
-                            className={styles.deleteBtn}
-                            title="Șterge conversația"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </>
-                    )}
+                      ) : (
+                        <>
+                          <div className={styles.conversationInfo}>
+                            <h4 className={styles.conversationTitle}>
+                              {conversation.title}
+                            </h4>
+                            <div className={styles.conversationMeta}>
+                              <Clock size={12} />
+                              <span>
+                                {formatTimestamp(conversation.updatedAt)}
+                              </span>
+                              {conversation.messageCount > 0 && (
+                                <span className={styles.messageCount}>
+                                  {conversation.messageCount} mesaje
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className={styles.conversationActions}>
+                            <button
+                              onClick={(e) => startEditing(conversation, e)}
+                              className={styles.actionBtn}
+                              title="Editează titlul"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                            <button
+                              onClick={(e) =>
+                                handleDeleteConversation(conversation.id, e)
+                              }
+                              className={styles.deleteBtn}
+                              title="Șterge conversația"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
