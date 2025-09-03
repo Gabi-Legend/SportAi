@@ -13,7 +13,8 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "SportML",
-  description: "News with AI on sports",
+  description:
+    "AI sports predictions made easy with quick stats, smart insights, and accurate forecasts.",
 };
 
 export default function RootLayout({ children }) {
