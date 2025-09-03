@@ -1,8 +1,11 @@
-// Rate limiting și caching pentru optimizare
+// Rate limiting și caching pentru optimizare - VERSIUNE ÎMBUNĂTĂȚITĂ
 const MESSAGE_CACHE = new Map();
 const RATE_LIMIT = new Map();
-const MAX_REQUESTS_PER_MINUTE = 20;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minute
+const MAX_REQUESTS_PER_MINUTE = 15; // Redus pentru a preveni suprasolicitarea
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minute - cache mai lung
+const REQUEST_TIMEOUT = 25000; // 25 secunde - timeout mai conservator
+const MAX_RETRIES = 2; // Retry logic pentru erori temporare
+
 function checkRateLimit(ip) {
   const now = Date.now();
   const userRequests = RATE_LIMIT.get(ip) || [];
@@ -19,25 +22,88 @@ function checkRateLimit(ip) {
   return true;
 }
 
-// Funcție pentru cache
+// Funcție pentru cache - îmbunătățită
 function getCachedResponse(message) {
-  const cached = MESSAGE_CACHE.get(message.toLowerCase());
+  const normalizedMessage = message.toLowerCase().trim();
+  const cached = MESSAGE_CACHE.get(normalizedMessage);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return cached.response;
   }
+
+  // Șterge cache-ul expirat
+  if (cached && Date.now() - cached.timestamp >= CACHE_DURATION) {
+    MESSAGE_CACHE.delete(normalizedMessage);
+  }
+
   return null;
 }
 
 function setCachedResponse(message, response) {
-  MESSAGE_CACHE.set(message.toLowerCase(), {
+  const normalizedMessage = message.toLowerCase().trim();
+  MESSAGE_CACHE.set(normalizedMessage, {
     response,
     timestamp: Date.now(),
   });
 
-  // Curăță cache-ul dacă devine prea mare
-  if (MESSAGE_CACHE.size > 100) {
-    const oldestKey = MESSAGE_CACHE.keys().next().value;
-    MESSAGE_CACHE.delete(oldestKey);
+  // Curăță cache-ul mai agresiv pentru a evita memory leaks
+  if (MESSAGE_CACHE.size > 50) {
+    // Șterge cele mai vechi 10 intrări
+    const entries = Array.from(MESSAGE_CACHE.entries());
+    entries
+      .sort((a, b) => a[1].timestamp - b[1].timestamp)
+      .slice(0, 10)
+      .forEach(([key]) => MESSAGE_CACHE.delete(key));
+  }
+}
+
+// Funcție pentru retry cu exponential backoff
+async function makeRequestWithRetry(requestConfig, retries = MAX_RETRIES) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+      const response = await fetch(requestConfig.url, {
+        ...requestConfig.options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // Dacă răspunsul este 502, 503, 504 sau 429, încearcă din nou
+      if (attempt < retries && [502, 503, 504, 429].includes(response.status)) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Max 5 secunde
+        console.log(
+          `Attempt ${attempt + 1} failed with ${
+            response.status
+          }, retrying in ${delay}ms...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (attempt === retries) {
+        throw error;
+      }
+
+      // Dacă este timeout sau network error, încearcă din nou
+      if (error.name === "AbortError" || error.message.includes("fetch")) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 3000);
+        console.log(
+          `Attempt ${attempt + 1} failed with ${
+            error.name
+          }, retrying in ${delay}ms...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      throw error;
+    }
   }
 }
 
@@ -48,11 +114,14 @@ export async function POST(req) {
     // Extrage IP pentru rate limiting
     const forwarded = req.headers.get("x-forwarded-for");
     const ip = forwarded
-      ? forwarded.split(",")[0]
-      : req.headers.get("x-real-ip") || "unknown";
+      ? forwarded.split(",")[0].trim()
+      : req.headers.get("x-real-ip") ||
+        req.headers.get("cf-connecting-ip") || // Cloudflare
+        "unknown";
 
-    // Verifică rate limiting
+    // Verifică rate limiting mai strict
     if (!checkRateLimit(ip)) {
+      console.warn(`Rate limit exceeded for IP: ${ip}`);
       return new Response(
         JSON.stringify({
           error:
@@ -64,37 +133,54 @@ export async function POST(req) {
           headers: {
             "Content-Type": "application/json",
             "Retry-After": "60",
+            "Cache-Control": "no-cache",
           },
         }
       );
     }
 
-    const body = await req.json();
-    const { message } = body;
-
-    // Validare input
-    if (!message || typeof message !== "string") {
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
       return new Response(
         JSON.stringify({
-          error: "Mesajul este obligatoriu și trebuie să fie text.",
+          error: "Format de date invalid. Te rog verifică cererea.",
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    if (message.length > 4000) {
+    const { message } = body;
+
+    // Validare input îmbunătățită
+    if (!message || typeof message !== "string" || !message.trim()) {
       return new Response(
         JSON.stringify({
-          error: "Mesajul este prea lung. Maximum 4000 caractere.",
+          error: "Mesajul este obligatoriu și trebuie să conțină text valid.",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const trimmedMessage = message.trim();
+
+    if (trimmedMessage.length > 3000) {
+      // Redus pentru a evita token limits
+      return new Response(
+        JSON.stringify({
+          error: "Mesajul este prea lung. Maximum 3000 caractere.",
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
     // Verifică cache pentru mesaje identice
-    const cachedResponse = getCachedResponse(message.trim());
+    const cachedResponse = getCachedResponse(trimmedMessage);
     if (cachedResponse) {
-      console.log(`Cache hit for message: ${message.substring(0, 50)}...`);
+      console.log(
+        `Cache hit for message: ${trimmedMessage.substring(0, 50)}...`
+      );
       return Response.json({
         reply: cachedResponse,
         cached: true,
@@ -123,14 +209,42 @@ export async function POST(req) {
       minute: "2-digit",
     });
 
-    // Timeout pentru request
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secunde timeout
+    // Payload optimizat pentru a reduce dimensiunea
+    const requestPayload = {
+      model: "deepseek/deepseek-r1",
+      messages: [
+        {
+          role: "system",
+          content: `Ești SportML Chat, asistent AI specializat exclusiv în sport.
+
+📅 ${currentDate}, ${currentTime}
+
+🎯 Reguli:
+- Răspunde DOAR la întrebări despre sport (fotbal, tenis, baschet, handbal, sporturi olimpice, performanțe, clasamente, transferuri, statistici).
+- Pentru alte subiecte: "Îmi pare rău, sunt specializat doar în sport."
+- Răspunsuri concise și clare, fără formatare specială (*, /, !).
+- Ton prietenos și profesionist.
+- Dacă informația nu e disponibilă, menționează acest lucru.
+
+⚽ Concentrează-te pe: date, statistici, performanțe, competiții, noutăți sportive.`,
+        },
+        {
+          role: "user",
+          content: trimmedMessage,
+        },
+      ],
+      temperature: 0.6, // Redus pentru consistență
+      max_tokens: 800, // Redus pentru a evita timeout-urile
+      top_p: 0.9,
+      frequency_penalty: 0.1,
+      presence_penalty: 0.1,
+      stream: false, // Asigură-te că nu folosești streaming
+    };
 
     try {
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
+      const response = await makeRequestWithRetry({
+        url: "https://openrouter.ai/api/v1/chat/completions",
+        options: {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -138,47 +252,11 @@ export async function POST(req) {
             "HTTP-Referer":
               process.env.YOUR_SITE_URL || "http://localhost:3000",
             "X-Title": process.env.YOUR_APP_NAME || "SportML Chat",
+            "User-Agent": "SportML-Chat/1.0",
           },
-          body: JSON.stringify({
-            model: "deepseek/deepseek-r1",
-            messages: [
-              {
-                role: "system",
-                content: `Ești SportML Chat, un asistent AI specializat exclusiv în sport.  
-
-📅 Data și ora curentă: ${currentDate}, ${currentTime}  
-
-🎯 Instrucțiuni principale:  
-- Răspunde strict la întrebări despre sport (fotbal, tenis, baschet, handbal, sporturi olimpice, performanțe, clasamente, transferuri, statistici etc.).  
-- Ignoră orice subiect care nu are legătură cu sportul (ex: școală, politică, economie, divertisment). În astfel de cazuri, răspunde politicos: „Îmi pare rău, dar sunt specializat doar în sport.”  
-- Răspunde concis, clar și corect, dar oferă detalii atunci când sunt utile pentru înțelegerea completă.  
-- Folosește un ton prietenos și profesionist, potrivit pentru un comentator sau analist sportiv.  
-- Dacă informația nu este disponibilă sau actualizată, menționează deschis acest lucru.  
-- Pune accent pe date, statistici, performanțe, program de competiții și noutăți sportive.  
-
-⚽ Exemplu de răspunsuri:  
-- Întrebare: „Cine e golgheterul Ligii Campionilor acum?”  
-  Răspuns: „În acest sezon, golgheterul Ligii Campionilor este [nume jucător] cu [număr] goluri.”  
-
-- Întrebare: „Cine a câștigat ultimul Roland Garros?”  
-  Răspuns: „Ultimul Roland Garros a fost câștigat de [nume jucător/jucătoare] în [an], învingându-l/o pe [adversar] în finală.”  `,
-              },
-              {
-                role: "user",
-                content: message.trim(),
-              },
-            ],
-            temperature: 0.7,
-            max_tokens: 1000,
-            top_p: 1,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-          }),
-          signal: controller.signal,
-        }
-      );
-
-      clearTimeout(timeoutId);
+          body: JSON.stringify(requestPayload),
+        },
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -194,15 +272,30 @@ export async function POST(req) {
         } else if (response.status >= 500) {
           userMessage =
             "Serviciul este temporar indisponibil. Te rog încearcă din nou.";
+        } else if (response.status === 400) {
+          userMessage =
+            "Cererea nu a putut fi procesată. Te rog reformulează întrebarea.";
         }
 
         return new Response(JSON.stringify({ error: userMessage }), {
-          status: response.status,
-          headers: { "Content-Type": "application/json" },
+          status: response.status === 502 ? 503 : response.status, // Convertește 502 în 503
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": "30",
+          },
         });
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Eroare parsing JSON:", jsonError);
+        return new Response(
+          JSON.stringify({ error: "Răspuns invalid de la serviciul AI." }),
+          { status: 502, headers: { "Content-Type": "application/json" } }
+        );
+      }
 
       if (!data.choices?.[0]?.message?.content) {
         console.error("Răspuns invalid de la API:", data);
@@ -215,34 +308,54 @@ export async function POST(req) {
       const reply = data.choices[0].message.content.trim();
       const responseTime = Date.now() - startTime;
 
-      // Salvează în cache
-      setCachedResponse(message.trim(), reply);
+      // Validează răspunsul înainte de cache
+      if (reply && reply.length > 0) {
+        setCachedResponse(trimmedMessage, reply);
+      }
 
-      console.log(`Răspuns generat în ${responseTime}ms`);
+      console.log(
+        `Răspuns generat în ${responseTime}ms pentru IP: ${ip.substring(
+          0,
+          8
+        )}...`
+      );
 
       return Response.json({
         reply,
         responseTime,
         usage: data.usage,
+        model: "deepseek/deepseek-r1",
       });
     } catch (fetchError) {
-      clearTimeout(timeoutId);
+      console.error("Fetch error:", fetchError);
 
       if (fetchError.name === "AbortError") {
-        console.error("Request timeout");
         return new Response(
           JSON.stringify({
-            error: "Cererea a depășit timpul limită. Te rog încearcă din nou.",
+            error:
+              "Cererea a depășit timpul limită. Te rog încearcă din nou cu o întrebare mai scurtă.",
           }),
           { status: 408, headers: { "Content-Type": "application/json" } }
         );
       }
 
-      throw fetchError;
+      return new Response(
+        JSON.stringify({
+          error:
+            "Probleme de conectare cu serviciul AI. Te rog încearcă din nou.",
+        }),
+        {
+          status: 503,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": "30",
+          },
+        }
+      );
     }
   } catch (err) {
     const responseTime = Date.now() - startTime;
-    console.error(`Eroare API (${responseTime}ms):`, err.message);
+    console.error(`Eroare API (${responseTime}ms):`, err);
 
     return new Response(
       JSON.stringify({
@@ -252,7 +365,10 @@ export async function POST(req) {
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+        },
       }
     );
   }
