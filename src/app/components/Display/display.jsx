@@ -151,7 +151,7 @@ export default function Display() {
             <div className={styles.buttonGlow}></div>
           </button>
 
-          <p className={styles.subtitle}>Powered by DeepSeek AI</p>
+          <p className={styles.subtitle}>Powered by GROQ and OLLAMA</p>
 
           {!user && (
             <p className={styles.authHint}>
